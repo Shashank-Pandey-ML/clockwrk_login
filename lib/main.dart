@@ -1,7 +1,11 @@
+/* Main file of the ClockWrk Login code */
+
+import 'package:clockwrk_login/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:clockwrk_login/pages/home.dart';
 
 void main() {
+  setupServices();
   runApp(const MyApp());
 }
 

@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+    <string>Camera for face recognition</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Might be for camera. Its given as requirement in camera package doc</string>
 </dict>
 </plist>

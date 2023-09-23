@@ -1,3 +1,8 @@
+/* File contains widget to show the home page
+* The home page contains 2 buttons Check-In and Check-Out. */
+
+import 'package:clockwrk_login/pages/check_in.dart';
+import 'package:clockwrk_login/pages/check_out.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -44,7 +49,9 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckIn()));
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -55,7 +62,7 @@ class HomePage extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('SIGN IN'),
+                            Text('Check In'),
                             SizedBox(width: 10),
                             Icon(Icons.login),
                           ],
@@ -63,7 +70,9 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckOut()));
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
@@ -76,7 +85,7 @@ class HomePage extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('SIGN OUT'),
+                            Text('Check Out'),
                             SizedBox(width: 10),
                             Icon(Icons.logout),
                           ],
