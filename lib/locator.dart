@@ -1,6 +1,9 @@
 /* File contains GetIt.instance which helps us reuse the instances of service
 * class (eg. CameraService) everywhere in the code. */
 
+import 'package:clockwrk_login/db/db_helper.dart';
+import 'package:clockwrk_login/services/face_detector.dart';
+import 'package:clockwrk_login/services/face_recognition.dart';
 import 'package:get_it/get_it.dart';
 import 'package:clockwrk_login/services/camera.dart';
 
@@ -19,4 +22,7 @@ final locator = GetIt.instance;
 
 void setupServices() {
   locator.registerLazySingleton<CameraService>(() => CameraService());
+  locator.registerLazySingleton<FaceDetectorService>(() => FaceDetectorService());
+  locator.registerLazySingleton<FaceRecognitionService>(() => FaceRecognitionService());
+  locator.registerLazySingleton<DbHelper>(() => DbHelper());
 }

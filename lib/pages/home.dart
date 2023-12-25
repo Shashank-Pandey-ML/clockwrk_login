@@ -3,6 +3,7 @@
 
 import 'package:clockwrk_login/pages/check_in.dart';
 import 'package:clockwrk_login/pages/check_out.dart';
+import 'package:clockwrk_login/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -48,48 +49,22 @@ class HomePage extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: Column(
                   children: [
-                    ElevatedButton(
-                        onPressed: () {
+                    AppButton(
+                        title: 'Check In',
+                        onClick: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckIn()));
                         },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          textStyle: const TextStyle(fontSize: 20),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Check In'),
-                            SizedBox(width: 10),
-                            Icon(Icons.login),
-                          ],
-                        )
+                        icon: Icons.login,
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                        onPressed: () {
+                    AppButton(
+                        title: 'Check Out',
+                        onClick: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckOut()));
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          textStyle: const TextStyle(fontSize: 20),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Check Out'),
-                            SizedBox(width: 10),
-                            Icon(Icons.logout),
-                          ],
-                        )
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        icon: Icons.logout,
                     ),
                   ]
                 )

@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-void showErrorSnackbar(BuildContext context,String message) {
-  // Function to show a Snack bar in case of an error
+/// Function to show a Snack bar in case of an error
+void showErrorSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(message),
     duration: const Duration(minutes: 10),
@@ -13,5 +13,13 @@ void showErrorSnackbar(BuildContext context,String message) {
         Navigator.pop(context);
       },
     ),
+  ));
+}
+
+/// Function to show a Snack bar in general cases
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(message),
+    duration: const Duration(seconds: 2),
   ));
 }

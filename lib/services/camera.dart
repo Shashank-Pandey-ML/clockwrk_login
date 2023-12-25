@@ -1,15 +1,18 @@
-/* File contains Camera class which holds the important attributes and
+/* File contains CameraService class which holds the important attributes and
 * methods required for dealing with a camera.
 * We call this class a service cause the object of this class will be reused
 * everywhere. */
 
 import 'dart:async';
+import 'dart:io';
 import 'package:camera/camera.dart';
 
 class CameraService {
   CameraController? _cameraController;
-  // Getter method to give read only access _cameraController
   CameraController? get cameraController => _cameraController;
+
+  late CameraDescription _frontCamera;
+  CameraDescription get frontCamera => _frontCamera;
 
   // Function to initialize the camera.
   Future<void> initCamera() async{
@@ -19,11 +22,15 @@ class CameraService {
     // Get a list of cameras
     List<CameraDescription> cameras = await availableCameras();
     // Get the front camera
-    CameraDescription frontCamera =
+    _frontCamera =
       cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front);
 
     // Create a _cameraController object
-    _cameraController = CameraController(frontCamera, ResolutionPreset.max, enableAudio: false);
+    _cameraController = CameraController(_frontCamera, ResolutionPreset.max,
+        enableAudio: false, imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup.nv21 // for Android
+            : ImageFormatGroup.bgra8888, // for iOS
+    );
     // Initialize the _cameraController object. Also handle exception.
     await _cameraController?.initialize().catchError((Object e) {
       if (e is CameraException) {
@@ -39,6 +46,14 @@ class CameraService {
         }
       }
     });
+  }
+
+  Future<XFile?> takePicture() async {
+    if (_cameraController == null) return null;
+
+    final XFile? image = await _cameraController?.takePicture();
+    if (image == null) return null;
+    return image;
   }
 
   // Dispose the cameraController
