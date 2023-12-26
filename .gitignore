@@ -49,3 +49,4 @@ lib/generated_plugin_registrant.dart
 # Firebase configs
 google-services.json
 firebase_app_id_file.json
+GoogleService-Info.plist
