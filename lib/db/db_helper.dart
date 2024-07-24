@@ -1,28 +1,27 @@
 
 import 'dart:math';
 
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:clockwrk_login/models/employee.dart';
 
 class DbHelper {
-  final DatabaseReference _employeesDbReference = FirebaseDatabase.instance.ref(
-      "employees");
+  final CollectionReference _employeesCollectionRef = FirebaseFirestore.instance.collection("employees");
 
   /// Function to get add a new employee to the DB
   Future addEmployee(Employee employee) async {
-    DatabaseReference postEmployeesDbReference = _employeesDbReference.push();
-    await postEmployeesDbReference.set(employee.toMap());
+    await _employeesCollectionRef.add(employee.toMap());
   }
 
   /// Function to get all the employees
   Future<List<Employee>> getEmployees() async {
-    // Fetch all employee data.
-    DataSnapshot employeesSnapshot = await _employeesDbReference.get();
+    // Fetch all employee documents.
+    QuerySnapshot employeesSnapshot = await _employeesCollectionRef.get();
+
     List<Employee> employees = [];
 
     // Check if the event has data.
-    for (var child in employeesSnapshot.children) {
-      employees.add(Employee.fromMap(child.value as Map<dynamic, dynamic>));
+    for (var doc in employeesSnapshot.docs) {
+      employees.add(Employee.fromMap(doc.data() as Map<String, dynamic>));
     }
 
     return employees;
@@ -30,20 +29,32 @@ class DbHelper {
 
   /// Function to get employee by its mobile number
   Future<Employee?> getEmployeeByMobileNumber(String mobileNumber) async {
-    DataSnapshot snapshot =
-    await _employeesDbReference.orderByChild("mobile_number").equalTo(mobileNumber).get();
+    // Query to find the employee by mobile number.
+    QuerySnapshot snapshot = await _employeesCollectionRef
+        .where('mobile_number', isEqualTo: mobileNumber)
+        .get();
 
-    if (snapshot.exists) return Employee.fromMap(snapshot.value as Map<String, dynamic>);
+    if (snapshot.docs.isNotEmpty) {
+      // Assuming there is only one employee with this mobile number.
+      var doc = snapshot.docs.first;
+      return Employee.fromMap(doc.data() as Map<String, dynamic>);
+    }
 
     return null;
   }
 
   /// Function to get employee by its email
   Future<Employee?> getEmployeeByEmail(String email) async {
-    DataSnapshot snapshot =
-    await _employeesDbReference.orderByChild("email").equalTo(email).get();
+    // Query to find the employee by email.
+    QuerySnapshot snapshot = await _employeesCollectionRef
+        .where('email', isEqualTo: email)
+        .get();
 
-    if (snapshot.exists) return Employee.fromMap(snapshot.value as Map<String, dynamic>);
+    if (snapshot.docs.isNotEmpty) {
+      // Assuming there is only one employee with this email.
+      var doc = snapshot.docs.first;
+      return Employee.fromMap(doc.data() as Map<String, dynamic>);
+    }
 
     return null;
   }
@@ -53,19 +64,6 @@ class DbHelper {
     List<Employee> employees = await getEmployees();
 
     Employee? predictedResult;
-
-    // // Calculated using euclidean distance
-    // double minDist = 999;
-    // double currDist = 0.0;
-    // double threshold = 0.5;
-    //
-    // for (Employee employee in employees) {
-    //   currDist = _euclideanDistance(employee.modelData, predictedModelData);
-    //   if (currDist <= threshold && currDist < minDist) {
-    //     minDist = currDist;
-    //     predictedResult = employee;
-    //   }
-    // }
 
     // Calculated using cosine similarity
     double maxDist = -1.0;
