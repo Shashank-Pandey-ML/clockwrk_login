@@ -11,7 +11,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 
 import '../locator.dart';
-import '../models/user.dart';
+import '../models/employee.dart';
 
 class FaceRecognitionService {
   Interpreter? _interpreter;
@@ -23,7 +23,7 @@ class FaceRecognitionService {
   final DbHelper _dbHelper = locator<DbHelper>();
 
   /// Initializes the face recognition service by loading the tflite model trained to
-  /// convert image to a list of numbers which then can be used for identifying users.
+  /// convert image to a list of numbers which then can be used for identifying employees.
   Future initFaceRecognition() async {
     // late Delegate delegate;
     try {
@@ -58,7 +58,7 @@ class FaceRecognitionService {
     }
   }
 
-  /// Function which takes the image and the face detected as inputs and returns
+  /// Function which takes the image and the face detected as inputs and
   /// sets the current predicted facial data attribute of this service.
   Future setCurrentPrediction(XFile image, Face? face) async {
     if (_interpreter == null) throw Exception('Interpreter is null');
@@ -119,8 +119,8 @@ class FaceRecognitionService {
 
   /// Function to check whether the face identified in a image is already
   /// registered within the DB or not.
-  Future<User?> predictUser() async {
-    return _dbHelper.getUserByModelData(_predictedData);
+  Future<Employee?> predictEmployee() async {
+    return _dbHelper.getEmployeeByModelData(_predictedData);
   }
 
   /// Function which assigns 'value' to the '_predictedData' attribute

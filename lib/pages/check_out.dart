@@ -142,7 +142,7 @@ class CheckOutState extends State<CheckOut> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("User not found 😞", style: TextStyle(fontSize: 20),)
+          Text("Employee not found 😞", style: TextStyle(fontSize: 20),)
         ],
       ),
     );

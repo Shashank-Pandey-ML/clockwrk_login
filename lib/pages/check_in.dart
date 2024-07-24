@@ -2,11 +2,11 @@
 * This page should show a camera preview with capture and back button.
 * There are multiple scenarios to consider when the picture is taken:
 * 1. A face is detected in the photo:
-*     a. Face is registered: Show the user's name and ask whether to continue
+*     a. Face is registered: Show the employee's name and ask whether to continue
 *        check-in.
-*     b. Face is not registered: Ask whether its a new user. If yes, then ask
-*        for relevant user details and add it to the DB.
-* 2. No face detected: Notify the user that there is no face detected. */
+*     b. Face is not registered: Ask whether its a new employee. If yes, then ask
+*        for relevant employee details and add it to the DB.
+* 2. No face detected: Notify the employee that there is no face detected. */
 
 import 'dart:math';
 import 'dart:io';
@@ -25,7 +25,7 @@ import 'package:clockwrk_login/services/face_detector.dart';
 import 'package:clockwrk_login/services/face_recognition.dart';
 import 'package:flutter/material.dart';
 
-import '../models/user.dart';
+import '../models/employee.dart';
 
 class CheckIn extends StatefulWidget {
   const CheckIn({super.key});
@@ -45,13 +45,13 @@ class CheckInState extends State<CheckIn> {
   bool _isInitializing = false;
   bool _pictureTaken = false;
   bool _isBottomSheetVisible = false;
-  bool _newUser = false;
+  bool _newEmployee = false;
 
-  final TextEditingController _userTextEditingController = TextEditingController(text: '');
+  final TextEditingController _employeeTextEditingController = TextEditingController(text: '');
   final TextEditingController _phoneTextEditingController = TextEditingController(text: '');
   final TextEditingController _emailTextEditingController = TextEditingController(text: '');
 
-  User? predictedUser;
+  Employee? predictedEmployee;
 
   @override
   void initState() {
@@ -146,9 +146,9 @@ class CheckInState extends State<CheckIn> {
     if (_faceDetectorService.faceDetected) {
       if (mounted) {
         await _faceRecognitionService.setCurrentPrediction(_image!, _faceDetectorService.faces[0]);
-        var user = await _faceRecognitionService.predictUser();
-        if (user != null) {
-          predictedUser = user;
+        var employee = await _faceRecognitionService.predictEmployee();
+        if (employee != null) {
+          predictedEmployee = employee;
         }
         _showBottomSheetWidget();
       }
@@ -176,18 +176,18 @@ class CheckInState extends State<CheckIn> {
   Widget _bottomSheetWidget(BuildContext context, {int height = 200}) {
     return Wrap(
       children: <Widget> [
-        predictedUser == null
-          ? _userNotFoundWidget()
-          : _userFoundWidget(),
+        predictedEmployee == null
+          ? _employeeNotFoundWidget()
+          : _employeeFoundWidget(),
       ]
     );
   }
 
-  /// Function to return the widget when user is not found. In this case we
-  /// ask the user whether he wants to register himself as a new user or not.
-  /// If Yes, then we ask for relevant user details to be entered and add them
+  /// Function to return the widget when employee is not found. In this case we
+  /// ask the employee whether he wants to register himself as a new employee or not.
+  /// If Yes, then we ask for relevant employee details to be entered and add them
   /// to the DB.
-  Widget _userNotFoundWidget() {
+  Widget _employeeNotFoundWidget() {
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AnimatedContainer(
@@ -204,7 +204,7 @@ class CheckInState extends State<CheckIn> {
                         children: [
                           AppTextField(
                             labelText: 'Name',
-                            controller: _userTextEditingController,
+                            controller: _employeeTextEditingController,
                           ),
                           AppTextField(
                             labelText: 'Phone Number',
@@ -219,15 +219,15 @@ class CheckInState extends State<CheckIn> {
                           AppButton(
                             title: 'Submit',
                             onClick: () {
-                              _dbHelper.addUser(User(
-                                  name: _userTextEditingController.text,
+                              _dbHelper.addEmployee(Employee(
+                                  name: _employeeTextEditingController.text,
                                   mobileNo: _phoneTextEditingController.text,
                                   email: _emailTextEditingController.text,
                                   salaryPerHour: 10.00,
                                   modelData: _faceRecognitionService
                                       .predictedData
                               ));
-                              showSnackbar(context, "User registered. Please check-in again.");
+                              showSnackbar(context, "Employee registered. Please check-in again.");
                               Navigator.popUntil(context, (route) => route.isFirst);
                             },
                             foregroundColor: Colors.white,
@@ -246,14 +246,14 @@ class CheckInState extends State<CheckIn> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("User not found 😞",
+                          const Text("Employee not found 😞",
                             style: TextStyle(fontSize: 20),),
                           const SizedBox(height: 20),
                           AppButton(
                             title: 'New Member?',
                             onClick: () {
                               setState(() {
-                                _newUser = true;
+                                _newEmployee = true;
                               });
                             },
                             foregroundColor: Colors.white,
@@ -264,7 +264,7 @@ class CheckInState extends State<CheckIn> {
                       ),
                     )
                 ),
-                crossFadeState: _newUser == true
+                crossFadeState: _newEmployee == true
                     ? CrossFadeState.showFirst
                     : CrossFadeState.showSecond
               ),
@@ -273,7 +273,7 @@ class CheckInState extends State<CheckIn> {
     );
   }
 
-  Widget _userFoundWidget() {
+  Widget _employeeFoundWidget() {
     return Container(
       height: 200,
       padding: const EdgeInsets.all(20),
@@ -282,12 +282,12 @@ class CheckInState extends State<CheckIn> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${"Welcome ${predictedUser!.name}"}.', style: const TextStyle(fontSize: 20),),
+            Text('${"Welcome ${predictedEmployee!.name}"}.', style: const TextStyle(fontSize: 20),),
             const SizedBox(height: 20),
             AppButton(
               title: 'Continue',
               onClick: () {
-                showSnackbar(context, "Checked in as ${predictedUser!.name} ");
+                showSnackbar(context, "Checked in as ${predictedEmployee!.name} ");
                 Navigator.popUntil(context, (route) => route.isFirst);
               },
               foregroundColor: Colors.white,
@@ -304,8 +304,8 @@ class CheckInState extends State<CheckIn> {
     setState(() {
       _pictureTaken = false;
       _isBottomSheetVisible = false;
-      _newUser = false;
-      predictedUser = null;
+      _newEmployee = false;
+      predictedEmployee = null;
     });
     _initServices();
   }

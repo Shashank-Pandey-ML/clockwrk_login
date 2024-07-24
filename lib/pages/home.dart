@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 class HomePage extends StatelessWidget {
   final String title;
   final String heading = "FACE RECOGNITION AUTHENTICATION";
-  final String subText = "Demo application to authenticate users using facial recognition";
+  final String subText = "Demo application to authenticate employees using facial recognition";
 
   const HomePage({super.key, required this.title});
 
