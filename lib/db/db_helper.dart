@@ -8,11 +8,13 @@ class DbHelper {
   final DatabaseReference _employeesDbReference = FirebaseDatabase.instance.ref(
       "employees");
 
+  /// Function to get add a new employee to the DB
   Future addEmployee(Employee employee) async {
     DatabaseReference postEmployeesDbReference = _employeesDbReference.push();
     await postEmployeesDbReference.set(employee.toMap());
   }
 
+  /// Function to get all the employees
   Future<List<Employee>> getEmployees() async {
     // Fetch all employee data.
     DataSnapshot employeesSnapshot = await _employeesDbReference.get();
@@ -26,6 +28,7 @@ class DbHelper {
     return employees;
   }
 
+  /// Function to get employee by its mobile number
   Future<Employee?> getEmployeeByMobileNumber(String mobileNumber) async {
     DataSnapshot snapshot =
     await _employeesDbReference.orderByChild("mobile_number").equalTo(mobileNumber).get();
@@ -35,6 +38,7 @@ class DbHelper {
     return null;
   }
 
+  /// Function to get employee by its email
   Future<Employee?> getEmployeeByEmail(String email) async {
     DataSnapshot snapshot =
     await _employeesDbReference.orderByChild("email").equalTo(email).get();
@@ -44,6 +48,7 @@ class DbHelper {
     return null;
   }
 
+  /// Function to get employee by its face (model data)
   Future<Employee?> getEmployeeByModelData(List predictedModelData) async {
     List<Employee> employees = await getEmployees();
 
@@ -78,6 +83,8 @@ class DbHelper {
     return predictedResult;
   }
 
+  /// (deprecated) Function to calculate the euclidean distance between 2 vectors (model
+  /// data of 2 faces)
   double _euclideanDistance(List? e1, List? e2) {
     if (e1 == null || e2 == null) throw Exception("Null argument");
     if (e1.length != e2.length) throw Exception("Lists must be of the same length");
@@ -89,6 +96,8 @@ class DbHelper {
     return sqrt(sum);
   }
 
+  /// Function to calculate the cosine similarity distance between 2 vectors
+  /// (model data of 2 faces). To find whether they are the same people of not.
   double _cosineSimilarity(List? e1, List? e2) {
     if (e1 == null || e2 == null) throw Exception("Null argument");
     if (e1.length != e2.length) throw Exception("Lists must be of the same length");
