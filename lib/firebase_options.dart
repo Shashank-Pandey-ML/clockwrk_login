@@ -50,8 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyAmwM8Hm_gEbYIkw145F-Wq-Q0KCeo3-C4',
+    appId: '1:492068212750:android:918f3203d9df4e48852c5f',
+    databaseURL: 'https://clockwrk-a6ea2-default-rtdb.europe-west1.firebasedatabase.app',
+    messagingSenderId: '492068212750',
+    projectId: 'clockwrk-a6ea2',
+    storageBucket: 'clockwrk-a6ea2.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDa_gZYKoKKbNxPsRV47wfbLac6G-rpb3A',
+    appId: '1:492068212750:ios:6a0f0783cb087494852c5f',
+    databaseURL: 'https://clockwrk-a6ea2-default-rtdb.europe-west1.firebasedatabase.app',
+    messagingSenderId: '492068212750',
+    projectId: 'clockwrk-a6ea2',
+    storageBucket: 'clockwrk-a6ea2.appspot.com',
+    iosBundleId: 'com.clockwrk.clockwrkLogin',
   );
 }

@@ -44,6 +44,11 @@ dependencies:
   firebase_core: ^2.16.0
   cloud_firestore: ^4.9.2
   firebase_auth: ^4.10.0
+  intl_phone_field: ^3.2.0
+  shared_preferences: ^2.2.3
+  provider: ^6.1.2
+  fluttertoast: ^8.2.5
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -69,9 +74,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/home-logo.png
     - assets/home-logo1.png
     - assets/mobilefacenet.tflite
+    - assets/male-placeholder.png
+    - assets/female-placeholder.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -96,5 +102,11 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

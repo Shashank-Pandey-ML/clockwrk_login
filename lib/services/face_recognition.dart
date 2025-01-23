@@ -119,8 +119,8 @@ class FaceRecognitionService {
 
   /// Function to check whether the face identified in a image is already
   /// registered within the DB or not.
-  Future<Employee?> predictEmployee() async {
-    return _dbHelper.getEmployeeByModelData(_predictedData);
+  Future<Employee?> predictEmployee(String adminId) async {
+    return _dbHelper.getEmployeeByModelData(adminId, _predictedData);
   }
 
   /// Function which assigns 'value' to the '_predictedData' attribute

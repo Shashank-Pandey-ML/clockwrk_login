@@ -13,7 +13,10 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:clockwrk_login/db/db_helper.dart';
+import 'package:clockwrk_login/db/preferences_helper.dart';
 import 'package:clockwrk_login/locator.dart';
+import 'package:clockwrk_login/models/user.dart';
+import 'package:clockwrk_login/pages/utils.dart';
 import 'package:clockwrk_login/pages/widgets/app_button.dart';
 import 'package:clockwrk_login/pages/widgets/app_text_field.dart';
 import 'package:clockwrk_login/pages/widgets/camera_button.dart';
@@ -24,8 +27,9 @@ import 'package:clockwrk_login/services/camera.dart';
 import 'package:clockwrk_login/services/face_detector.dart';
 import 'package:clockwrk_login/services/face_recognition.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
-import '../models/employee.dart';
+import '../../models/employee.dart';
 
 class CheckIn extends StatefulWidget {
   const CheckIn({super.key});
@@ -51,7 +55,11 @@ class CheckInState extends State<CheckIn> {
   final TextEditingController _phoneTextEditingController = TextEditingController(text: '');
   final TextEditingController _emailTextEditingController = TextEditingController(text: '');
 
+  final _formKey = GlobalKey<FormState>();
+
   Employee? predictedEmployee;
+
+  AppUser? appUser;
 
   @override
   void initState() {
@@ -104,6 +112,7 @@ class CheckInState extends State<CheckIn> {
       await _cameraService.initCamera();
       await _faceDetectorService.initFaceDetector();
       await _faceRecognitionService.initFaceRecognition();
+      appUser = await PreferencesHelper.getUserPreference();
       if (mounted) setState(() => _isInitializing = false);
     } on Exception catch (e) {
       // If any initialization fails then show a Snackbar to the user with
@@ -146,7 +155,7 @@ class CheckInState extends State<CheckIn> {
     if (_faceDetectorService.faceDetected) {
       if (mounted) {
         await _faceRecognitionService.setCurrentPrediction(_image!, _faceDetectorService.faces[0]);
-        var employee = await _faceRecognitionService.predictEmployee();
+        var employee = await _faceRecognitionService.predictEmployee(appUser!.adminId!);
         if (employee != null) {
           predictedEmployee = employee;
         }
@@ -173,7 +182,7 @@ class CheckInState extends State<CheckIn> {
   }
 
   /// Function to returns a bottom sheet widget during check-in
-  Widget _bottomSheetWidget(BuildContext context, {int height = 200}) {
+  Widget _bottomSheetWidget(BuildContext context) {
     return Wrap(
       children: <Widget> [
         predictedEmployee == null
@@ -188,6 +197,7 @@ class CheckInState extends State<CheckIn> {
   /// If Yes, then we ask for relevant employee details to be entered and add them
   /// to the DB.
   Widget _employeeNotFoundWidget() {
+    FocusNode focusNode = FocusNode();
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AnimatedContainer(
@@ -196,46 +206,65 @@ class CheckInState extends State<CheckIn> {
               child: AnimatedCrossFade(
                 duration: const Duration(milliseconds: 400),
                 firstChild: Container(
-                    height: 300,
+                    height: 350,
                     padding: const EdgeInsets.all(20),
                     child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AppTextField(
-                            labelText: 'Name',
-                            controller: _employeeTextEditingController,
-                          ),
-                          AppTextField(
-                            labelText: 'Phone Number',
-                            controller: _phoneTextEditingController,
-                            keyboardType: TextInputType.phone,
-                          ),
-                          AppTextField(
-                            labelText: 'Email',
-                            controller: _emailTextEditingController,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          AppButton(
-                            title: 'Submit',
-                            onClick: () {
-                              _dbHelper.addEmployee(Employee(
-                                  name: _employeeTextEditingController.text,
-                                  mobileNo: _phoneTextEditingController.text,
-                                  email: _emailTextEditingController.text,
-                                  salaryPerHour: 10.00,
-                                  modelData: _faceRecognitionService
-                                      .predictedData
-                              ));
-                              showSnackbar(context, "Employee registered. Please check-in again.");
-                              Navigator.popUntil(context, (route) => route.isFirst);
-                            },
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.blue,
-                            icon: Icons.person_add,
-                          ),
-                        ],
-                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextFormField(
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              controller: _employeeTextEditingController,
+                              decoration: const InputDecoration(labelText: 'Name'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your name';
+                                }
+                                return null;
+                              },
+                            ),
+                            // AppTextField(
+                            //   labelText: 'Name',
+                            //   controller: _employeeTextEditingController,
+                            // ),
+                            IntlPhoneField(
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                controller: _phoneTextEditingController,
+                                focusNode: focusNode,
+                                decoration: const InputDecoration(
+                                  labelText: 'Phone Number',
+                                ),
+                                initialCountryCode: "IN",
+                                languageCode: "en"
+                            ),
+                            // AppTextField(
+                            //   labelText: 'Phone Number',
+                            //   controller: _phoneTextEditingController,
+                            //   keyboardType: TextInputType.phone,
+                            // ),
+                            TextFormField(
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              controller: _emailTextEditingController,
+                              decoration: const InputDecoration(labelText: 'Email'),
+                              validator: validateEmail,
+                            ),
+                            // AppTextField(
+                            //   labelText: 'Email',
+                            //   controller: _emailTextEditingController,
+                            //   keyboardType: TextInputType.emailAddress,
+                            // ),
+                            AppButton(
+                              title: 'Submit',
+                              onClick: _createNewEmployee,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              icon: Icons.person_add,
+                            ),
+                          ],
+                        ),
+                      )
                     )
                 ),
                 secondChild: Container(
@@ -275,28 +304,83 @@ class CheckInState extends State<CheckIn> {
 
   Widget _employeeFoundWidget() {
     return Container(
-      height: 200,
+      height: 250,
       padding: const EdgeInsets.all(20),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${"Welcome ${predictedEmployee!.name}"}.', style: const TextStyle(fontSize: 20),),
+            Text.rich(
+              TextSpan(
+                text: "Check In as ",
+                style: const TextStyle(fontSize: 16),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: "${predictedEmployee!.name} - ${predictedEmployee!.email}?",
+                    style: const TextStyle(fontWeight: FontWeight.bold), // Bold style
+                  )
+                ],
+              )
+            ),
+            // Text(
+            //   '${"CheckIn as ${predictedEmployee!.name} - ${predictedEmployee!.email}?"}.',
+            //   style: const TextStyle(fontSize: 20),
+            // ),
             const SizedBox(height: 20),
             AppButton(
               title: 'Continue',
               onClick: () {
-                showSnackbar(context, "Checked in as ${predictedEmployee!.name} ");
+                _dbHelper.checkInEmployee(predictedEmployee!.adminId, predictedEmployee!.id);
+                // showSnackbar(context, "Checked in as ${predictedEmployee!.name}");
                 Navigator.popUntil(context, (route) => route.isFirst);
               },
               foregroundColor: Colors.white,
               backgroundColor: Colors.blue,
             ),
+            const SizedBox(height: 20),
+            AppButton(
+              title: 'Not you?',
+              onClick: () {},
+            ),
           ],
         )
       )
     );
+  }
+
+  Future<void> _createNewEmployee() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      Employee? employee = await _dbHelper.getEmployeeByEmail(appUser!.adminId!, _emailTextEditingController.text);
+      if (employee != null) {
+        showToast("Employee with the same email already exits", timeInSec: 5);
+        return;
+      }
+
+      employee = await _dbHelper.getEmployeeByMobileNumber(appUser!.adminId!, _phoneTextEditingController.text);
+      if (employee != null) {
+        showToast("Employee with the same phone number already exits", timeInSec: 5);
+        return;
+      }
+
+      employee = Employee(
+          name: _employeeTextEditingController.text,
+          mobileNo: _phoneTextEditingController.text,
+          email: _emailTextEditingController.text,
+          adminId: appUser!.adminId!,
+          modelData: _faceRecognitionService
+              .predictedData
+      );
+
+      await _dbHelper.createEmployee(appUser!.adminId!, employee);
+
+      _dbHelper.checkInEmployee(employee.adminId, employee.id);
+
+      if (mounted) {
+        showSnackbar(context, "Employee registered and checked-in.");
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    }
   }
 
   /// Function to reset the flags and initialize the services again.

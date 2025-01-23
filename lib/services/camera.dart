@@ -23,7 +23,8 @@ class CameraService {
     List<CameraDescription> cameras = await availableCameras();
     // Get the front camera
     _frontCamera =
-      cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front);
+      cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras.isNotEmpty ? cameras.first : throw Exception('No cameras found'),);
 
     // Create a _cameraController object
     _cameraController = CameraController(_frontCamera, ResolutionPreset.max,
